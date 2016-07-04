@@ -55,6 +55,9 @@ int16_t FlipDot_5x7::width() const {
 
 void FlipDot_5x7::begin() {
 	Wire.begin();
+	#ifdef ESP8266
+	#warning "Using ESP8266 as Master, connect I2C on IO4 (SDA) and IO5 (SCL)"
+	#else
 	pinMode(dataR, OUTPUT);
 	digitalWrite(dataR, LOW);  
 	pinMode(dataC, OUTPUT);
@@ -74,6 +77,7 @@ void FlipDot_5x7::begin() {
 	pinMode(colC, OUTPUT);
 	digitalWrite(colC, LOW);
 	pinMode(demo, INPUT_PULLUP);
+	#endif
 	fillScreen(FLIPDOT_YELLOW);
 	display();
 	fillScreen(FLIPDOT_BLACK);
@@ -113,6 +117,7 @@ void FlipDot_5x7::drawPixel(int16_t x, int16_t y, uint16_t color) {
 void FlipDot_5x7::display(void) {
 	for (uint8_t xModule = 0; xModule < xModules; xModule++) {
 		for (uint8_t yModule = 0; yModule < yModules; yModule++) {
+#ifndef ESP8266
 			if (xModule == 0 && yModule == 0) { //Master module
 				for (uint8_t x = 0; x < FLIPDOT_MODULE_WIDTH; x++) {
 					for (uint8_t y = 0; y < FLIPDOT_MODULE_HEIGHT; y++) {
@@ -123,6 +128,9 @@ void FlipDot_5x7::display(void) {
 				}
 			} else {
 				Wire.beginTransmission(FLIPDOT_I2C_OFFSET + yModule * xModules + xModule - 1);
+#else
+				Wire.beginTransmission(FLIPDOT_I2C_OFFSET + yModule * xModules + xModule);
+#endif //ESP8266
 				for (uint8_t x = xModule*FLIPDOT_MODULE_WIDTH; x < (xModule+1)*FLIPDOT_MODULE_WIDTH; x++) {
 					uint8_t wrt = 0;
 					for (uint8_t y = yModule*FLIPDOT_MODULE_HEIGHT; y < (yModule+1)*FLIPDOT_MODULE_HEIGHT; y++) {
@@ -131,7 +139,9 @@ void FlipDot_5x7::display(void) {
 					Wire.write(wrt);
 				}
 				Wire.endTransmission();
+#ifndef ESP8266
 			}
+#endif
 		}
 	}
 }
