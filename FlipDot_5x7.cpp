@@ -1,7 +1,5 @@
 #include "FlipDot_5x7.h"
 
-//FlipDot_5x7_Slave::FlipDot_5x7_Slave(boolean invert) : FlipDot_5x7(1,1,invert);
-
 void FlipDot_5x7_Slave::begin() {
 	pinMode(addr1, INPUT_PULLUP);
 	pinMode(addr2, INPUT_PULLUP);
@@ -55,9 +53,10 @@ int16_t FlipDot_5x7::width() const {
 
 void FlipDot_5x7::begin() {
 	Wire.begin();
-	#ifdef ESP8266
-	#warning "Using ESP8266 as Master, connect I2C on IO4 (SDA) and IO5 (SCL)"
-	#else
+#ifdef ESP8266
+#warning "Using ESP8266 as Master, connect I2C on IO4 (SDA) and IO5 (SCL)"
+#warning "Do not use as Slave, as no IO-control is supported."
+#else
 	pinMode(dataR, OUTPUT);
 	digitalWrite(dataR, LOW);  
 	pinMode(dataC, OUTPUT);
@@ -77,7 +76,7 @@ void FlipDot_5x7::begin() {
 	pinMode(colC, OUTPUT);
 	digitalWrite(colC, LOW);
 	pinMode(demo, INPUT_PULLUP);
-	#endif
+#endif //ESP8266
 	fillScreen(FLIPDOT_YELLOW);
 	display();
 	fillScreen(FLIPDOT_BLACK);
@@ -98,6 +97,7 @@ void FlipDot_5x7::selectCol(uint8_t col) {
 }
 
 void FlipDot_5x7::displayPixel(int16_t x, int16_t y, boolean color) {
+#ifndef ESP8266
 	if (x < FLIPDOT_MODULE_WIDTH && y < FLIPDOT_MODULE_HEIGHT) {
 		selectCol(x);
 		selectRow(y);
@@ -107,6 +107,7 @@ void FlipDot_5x7::displayPixel(int16_t x, int16_t y, boolean color) {
 		delayMicroseconds(FLIPDOT_PULSE_DURATION);  
 		digitalWrite(en, LOW);  
 	}
+#endif
 }
 
 void FlipDot_5x7::drawPixel(int16_t x, int16_t y, uint16_t color) {
@@ -118,7 +119,7 @@ void FlipDot_5x7::display(void) {
 	for (uint8_t xModule = 0; xModule < xModules; xModule++) {
 		for (uint8_t yModule = 0; yModule < yModules; yModule++) {
 #ifndef ESP8266
-			if (xModule == 0 && yModule == 0) { //Master module
+			if (xModule == 0 && yModule == 0) { //Master module or this is a slave
 				for (uint8_t x = 0; x < FLIPDOT_MODULE_WIDTH; x++) {
 					for (uint8_t y = 0; y < FLIPDOT_MODULE_HEIGHT; y++) {
 						if (oldImageBuffer[y*width()+x] == imageBuffer[y*width()+x]) continue;
@@ -126,7 +127,7 @@ void FlipDot_5x7::display(void) {
 						oldImageBuffer[y*width()+x] = imageBuffer[y*width()+x];
 					}
 				}
-			} else {
+			} else { //Slaves
 				Wire.beginTransmission(FLIPDOT_I2C_OFFSET + yModule * xModules + xModule - 1);
 #else
 				Wire.beginTransmission(FLIPDOT_I2C_OFFSET + yModule * xModules + xModule);
