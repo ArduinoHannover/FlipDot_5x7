@@ -1,6 +1,6 @@
 # FlipDot 5x7-Controller
 
-Adafruit GFX Based for 5x7 FlipDot Breakout Board
+Adafruit GFX based Library for 5x7 FlipDot breakout board which can be purchased at [HannIO](http://hannio.org/produkt/5x7-flipdot-controller/).
 
 ## Wiring
 
