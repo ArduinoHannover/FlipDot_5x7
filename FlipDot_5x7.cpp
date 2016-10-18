@@ -156,19 +156,19 @@ void FlipDot_5x7::display(void) {
 	if (_serialMode) {
 		for (uint8_t x = 0; x < FLIPDOT_MODULE_WIDTH; x++) {
 			for (uint8_t y = 0; y < FLIPDOT_MODULE_HEIGHT; y++) {
-				uint8_t dnc = 0;
+				//uint8_t dnc = 0;
 				for (int8_t yModule = _yModules-1; yModule > -1; yModule--) {
 					for (int8_t xModule = (yModule%2)?(_xModules-1):0;
 						((yModule%2)?-1:xModule) < ((yModule%2)?xModule:_xModules);
 						xModule += (yModule%2)?-1:1) {
 						uint8_t _x = xModule*FLIPDOT_MODULE_WIDTH+x;
 						uint8_t _y = yModule*FLIPDOT_MODULE_HEIGHT+y;
-						if (oldImageBuffer[y*width()+x] == imageBuffer[y*width()+x]) dnc++;
+						//if (oldImageBuffer[y*width()+x] == imageBuffer[y*width()+x]) dnc++;
 						displayPixel(x,y,imageBuffer[_y*width()+_x]);
 						oldImageBuffer[_y*width()+_x] = imageBuffer[_y*width()+_x];
 					}
 				}
-				if (dnc == _xModules*_yModules) continue;
+				//if (dnc == _xModules*_yModules) continue;
 				digitalWrite(_latch, HIGH);
 				delayMicroseconds(FLIPDOT_PULSE_DURATION);
 				digitalWrite(_latch, LOW);
