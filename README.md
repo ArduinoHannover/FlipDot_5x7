@@ -5,7 +5,7 @@ Adafruit GFX based Library for 5x7 FlipDot breakout board which can be purchased
 ## Wiring
 
 Note the silkscreen error on some PCBs.
-Correct pinout is 12V|12V|GND|SDA|SCL|GND|LAT|5V|GND
+Correct pinout is 12V|12V|GND|SDA|SCL|GND|LAT|5V|OUT
 For soldering instructions and further connection hints including daisychaining see [connection diagram](5x7FlipDotController2-5_Connection_Diagram.pdf).
 
 ### With Arduino on PCB (deprecated)
