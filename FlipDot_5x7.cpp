@@ -39,7 +39,15 @@ void FlipDot_5x7_Slave::receiveEvent(int n) {
 }
 #endif //ESP8266
 
-
+FlipDot_5x7::FlipDot_5x7(uint8_t xModules, uint8_t yModules) :
+	// +2 is a dirty hack to allow displaying chars on last display.
+	Adafruit_GFX(xModules*FLIPDOT_MODULE_WIDTH+2, yModules*FLIPDOT_MODULE_HEIGHT),
+	_xModules(xModules),
+	_yModules(yModules),
+	_invert(false) {
+	imageBuffer = (boolean*) calloc(width()*height(), sizeof(boolean));
+	oldImageBuffer = (boolean*) calloc(FLIPDOT_MODULE_WIDTH*height(), sizeof(boolean));
+}
 
 FlipDot_5x7::FlipDot_5x7(uint8_t xModules, uint8_t yModules, boolean invert) :
 	// +2 is a dirty hack to allow displaying chars on last display.
@@ -152,15 +160,23 @@ void FlipDot_5x7::setPixelDelay(uint8_t pixelDelay) {
 	_pixelDelay = pixelDelay;
 }
 
+void FlipDot_5x7::setRtl(boolean rtl) {
+	_rtl = rtl;
+}
+
+void FlipDot_5x7::invert(boolean invert) {
+	_invert = invert;
+}
+
 void FlipDot_5x7::display(void) {
 	if (_serialMode) {
 		for (uint8_t x = 0; x < FLIPDOT_MODULE_WIDTH; x++) {
 			for (uint8_t y = 0; y < FLIPDOT_MODULE_HEIGHT; y++) {
 				//uint8_t dnc = 0;
 				for (int8_t yModule = _yModules-1; yModule > -1; yModule--) {
-					for (int8_t xModule = (yModule%2)?(_xModules-1):0;
-						((yModule%2)?-1:xModule) < ((yModule%2)?xModule:_xModules);
-						xModule += (yModule%2)?-1:1) {
+					for (int8_t xModule = (yModule%2 != _rtl)?(_xModules-1):0;
+						((yModule%2 != _rtl)?-1:xModule) < ((yModule%2 != _rtl)?xModule:_xModules);
+						xModule += (yModule%2 != _rtl)?-1:1) {
 						uint8_t _x = xModule*FLIPDOT_MODULE_WIDTH+x;
 						uint8_t _y = yModule*FLIPDOT_MODULE_HEIGHT+y;
 						//if (oldImageBuffer[y*width()+x] == imageBuffer[y*width()+x]) dnc++;

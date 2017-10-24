@@ -37,6 +37,7 @@ class FlipDot_5x7 : public Adafruit_GFX {
 		boolean *oldImageBuffer = NULL;
 		boolean _invert;
 		boolean _serialMode = false;
+		boolean _rtl = false;
 		uint8_t _xModules, _yModules,
 			_pixelDelay = 0;
 		
@@ -52,7 +53,10 @@ class FlipDot_5x7 : public Adafruit_GFX {
 		void drawPixel(int16_t, int16_t, uint16_t);
 		void display(void);
 		void setPixelDelay(uint8_t);
+		void setRtl(boolean);
+		void invert(boolean);
 		int16_t width(void) const;
+		FlipDot_5x7(uint8_t, uint8_t);
 		FlipDot_5x7(uint8_t, uint8_t, boolean);
 };
 
